@@ -8,6 +8,7 @@ DEVICE_TYPE_PURE_COOL_LINK_DESK = "469"  # DP01? DP02? This one's a bit older, a
 DEVICE_TYPE_PURE_COOL_DESK = "520"  # AM06? This one's also a bit older, and also hard to scrape off the Dyson website
 DEVICE_TYPE_PURE_COOL_LINK = "475"  # TP02
 DEVICE_TYPE_PURE_COOL = "438"  # TP04, TP07, TP09, TP11, PC1 - all variants merged, use same DysonPureCool class
+DEVICE_TYPE_PURE_COOL_AM12 = "739"  # AM12 - Pure Cool fan
 DEVICE_TYPE_PURIFIER_COOL_K = "438K"  # Deprecated: use DEVICE_TYPE_PURE_COOL instead (kept for MQTT topic compatibility)
 DEVICE_TYPE_PURIFIER_COOL_E = "438E"  # Deprecated: use DEVICE_TYPE_PURE_COOL instead (kept for MQTT topic compatibility)
 DEVICE_TYPE_PURIFIER_COOL_M = "438M"  # Deprecated: use DEVICE_TYPE_PURE_COOL instead (kept for MQTT topic compatibility)
@@ -26,6 +27,7 @@ DEVICE_TYPE_NAMES = {
     DEVICE_TYPE_360_HEURIST: "360 Heurist robot vacuum",
     DEVICE_TYPE_360_VIS_NAV: "360 Vis Nav robot vacuum",
     DEVICE_TYPE_PURE_COOL: "Pure Cool Series (TP04/TP07/TP09/TP11/PC1)",
+    DEVICE_TYPE_PURE_COOL_AM12: "Pure Cool AM12",
     DEVICE_TYPE_PURIFIER_COOL_K: "Purifier Cool K Series (Deprecated - use Pure Cool)",
     DEVICE_TYPE_PURIFIER_COOL_E: "Purifier Cool E Series (Deprecated - use Pure Cool)",
     DEVICE_TYPE_PURIFIER_COOL_M: "Purifier Cool M Series (Deprecated - use Pure Cool)",

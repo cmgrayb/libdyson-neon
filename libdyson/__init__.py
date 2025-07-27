@@ -1,38 +1,39 @@
 """Dyson Python library."""
 
 from typing import Optional
+
 from .const import (
     DEVICE_TYPE_360_EYE,
     DEVICE_TYPE_360_HEURIST,
     DEVICE_TYPE_360_VIS_NAV,
     DEVICE_TYPE_PURE_COOL,
-    DEVICE_TYPE_PURIFIER_COOL_E,
-    DEVICE_TYPE_PURIFIER_COOL_K,
-    DEVICE_TYPE_PURIFIER_COOL_M,
+    DEVICE_TYPE_PURE_COOL_AM12,
     DEVICE_TYPE_PURE_COOL_DESK,
     DEVICE_TYPE_PURE_COOL_LINK,
     DEVICE_TYPE_PURE_COOL_LINK_DESK,
     DEVICE_TYPE_PURE_HOT_COOL,
+    DEVICE_TYPE_PURE_HOT_COOL_LINK,
+    DEVICE_TYPE_PURE_HUMIDIFY_COOL,
+    DEVICE_TYPE_PURIFIER_BIG_QUIET,
+    DEVICE_TYPE_PURIFIER_COOL_E,
+    DEVICE_TYPE_PURIFIER_COOL_K,
+    DEVICE_TYPE_PURIFIER_COOL_M,
     DEVICE_TYPE_PURIFIER_HOT_COOL_E,
     DEVICE_TYPE_PURIFIER_HOT_COOL_K,
     DEVICE_TYPE_PURIFIER_HOT_COOL_M,
-    DEVICE_TYPE_PURE_HOT_COOL_LINK,
-    DEVICE_TYPE_PURE_HUMIDIFY_COOL,
     DEVICE_TYPE_PURIFIER_HUMIDIFY_COOL_E,
     DEVICE_TYPE_PURIFIER_HUMIDIFY_COOL_K,
-    DEVICE_TYPE_PURIFIER_BIG_QUIET,
 )
-
 from .const import CleaningMode  # noqa: F401
 from .const import CleaningType  # noqa: F401
 from .const import DEVICE_TYPE_NAMES  # noqa: F401
 from .const import HumidifyOscillationMode  # noqa: F401
-from .const import Tilt  # noqa: F401
 from .const import MessageType  # noqa: F401
+from .const import Tilt  # noqa: F401
 from .const import VacuumEyePowerMode  # noqa: F401
 from .const import VacuumHeuristPowerMode  # noqa: F401
-from .const import VacuumVisNavPowerMode  # noqa: F401
 from .const import VacuumState  # noqa: F401
+from .const import VacuumVisNavPowerMode  # noqa: F401
 from .const import WaterHardness  # noqa: F401
 from .discovery import DysonDiscovery  # noqa: F401
 from .dyson_360_eye import Dyson360Eye
@@ -52,9 +53,9 @@ def get_device(serial: str, credential: str, device_type: str) -> Optional[Dyson
     """Get a new DysonDevice instance."""
     import logging
     _LOGGER = logging.getLogger(__name__)
-    
+
     _LOGGER.debug("Creating device: serial=%s, device_type=%s", serial, device_type)
-    
+
     if device_type == DEVICE_TYPE_360_EYE:
         _LOGGER.debug("Creating Dyson360Eye device")
         return Dyson360Eye(serial, credential)
@@ -72,6 +73,7 @@ def get_device(serial: str, credential: str, device_type: str) -> Optional[Dyson
         return DysonPureCoolLink(serial, credential, device_type)
     if device_type in [
         DEVICE_TYPE_PURE_COOL,
+        DEVICE_TYPE_PURE_COOL_AM12,  # AM12 - Pure Cool fan
         DEVICE_TYPE_PURIFIER_COOL_K,  # Deprecated - backward compatibility
         DEVICE_TYPE_PURIFIER_COOL_E,  # Deprecated - backward compatibility
         DEVICE_TYPE_PURIFIER_COOL_M,  # Deprecated - backward compatibility
@@ -102,7 +104,6 @@ def get_device(serial: str, credential: str, device_type: str) -> Optional[Dyson
     }:
         _LOGGER.debug("Creating DysonBigQuiet device")
         return DysonBigQuiet(serial, credential, device_type)
-    
+
     _LOGGER.warning("Unknown device type: %s for serial: %s", device_type, serial)
     return None
-
