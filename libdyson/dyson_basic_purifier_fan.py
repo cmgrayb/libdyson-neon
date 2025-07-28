@@ -1,18 +1,13 @@
-"""Dyson Pure Cool fan."""
+"""Dyson Basic Purifier Fan."""
 
 from abc import abstractmethod
 from typing import Optional
 
-from .dyson_device import DysonFanDevice
+from .dyson_basic_fan import DysonBasicFan
 
 
-class DysonPureCoolBase(DysonFanDevice):
-    """Dyson Pure Cool series base class."""
-
-    @property
-    def is_on(self) -> bool:
-        """Return if the device is on."""
-        return self._get_field_value(self._status, "fpwr") == "ON"
+class DysonBasicPurifierFan(DysonBasicFan):
+    """Dyson Basic Purifier Fan - basic air purification without advanced environmental sensors."""
 
     @property
     def auto_mode(self) -> bool:
@@ -37,54 +32,40 @@ class DysonPureCoolBase(DysonFanDevice):
     @property
     def night_mode_speed(self) -> int:
         """Return speed in night mode."""
-        return int(self._get_field_value(self._status, "nmdv"))
+        value = self._get_field_value(self._status, "nmdv")
+        return int(value) if value is not None else 0
 
     @property
     def carbon_filter_life(self) -> Optional[int]:
         """Return carbon filter life in percentage."""
         filter_life = self._get_field_value(self._status, "cflr")
-        if filter_life == "INV":
+        if filter_life == "INV" or filter_life is None:
             return None
         return int(filter_life)
 
     @property
     def hepa_filter_life(self) -> Optional[int]:
         """Return HEPA filter life in percentage."""
-        return int(self._get_field_value(self._status, "hflr"))
+        value = self._get_field_value(self._status, "hflr")
+        return int(value) if value is not None else None
 
     @property
     def particulate_matter_2_5(self):
         """Return PM 2.5 in micro grams per cubic meter."""
-        return int(
-            self._get_environmental_field_value("p25r")
-            or self._get_environmental_field_value("pm25")
-        )
+        pm25 = self._get_environmental_field_value(
+            "p25r"
+        ) or self._get_environmental_field_value("pm25")
+        return int(pm25) if pm25 is not None else None
 
     @property
     def particulate_matter_10(self):
         """Return PM 2.5 in micro grams per cubic meter."""
-        return int(
-            self._get_environmental_field_value("p10r")
-            or self._get_environmental_field_value("pm10")
-        )
+        pm10 = self._get_environmental_field_value(
+            "p10r"
+        ) or self._get_environmental_field_value("pm10")
+        return int(pm10) if pm10 is not None else None
 
-    @property
-    def volatile_organic_compounds(self) -> float:
-        """Return the index value for VOC"""
-        return self._get_environmental_field_value("va10", divisor=10)
-
-    @property
-    def nitrogen_dioxide(self) -> float:
-        """Return the index value for nitrogen."""
-        return self._get_environmental_field_value("noxl", divisor=10)
-
-    def turn_on(self) -> None:
-        """Turn on the device."""
-        self._set_configuration(fpwr="ON")
-
-    def turn_off(self) -> None:
-        """Turn off the device."""
-        self._set_configuration(fpwr="OFF")
+    # NOTE: NO VOC, NO2, humidity, temperature, or CO2 sensors - these don't exist on 438 series
 
     def _set_speed(self, speed: int) -> None:
         self._set_configuration(fpwr="ON", fnsp=f"{speed:04d}")
@@ -120,8 +101,8 @@ class DysonPureCoolBase(DysonFanDevice):
         self._set_configuration(fdir="OFF")
 
 
-class DysonPureCool(DysonPureCoolBase):
-    """Dyson Pure Cool device."""
+class DysonBasicPurifierFanWithOscillation(DysonBasicPurifierFan):
+    """Dyson Basic Purifier Fan with standard oscillation (TP04/TP07/TP09/TP11)."""
 
     @property
     def oscillation(self) -> bool:
@@ -133,12 +114,14 @@ class DysonPureCool(DysonPureCoolBase):
     @property
     def oscillation_angle_low(self) -> int:
         """Return oscillation low angle."""
-        return int(self._get_field_value(self._status, "osal"))
+        value = self._get_field_value(self._status, "osal")
+        return int(value) if value is not None else 0
 
     @property
     def oscillation_angle_high(self) -> int:
         """Return oscillation high angle."""
-        return int(self._get_field_value(self._status, "osau"))
+        value = self._get_field_value(self._status, "osau")
+        return int(value) if value is not None else 0
 
     def enable_oscillation(
         self,
@@ -155,29 +138,16 @@ class DysonPureCool(DysonPureCoolBase):
             raise ValueError("angle_low must be between 5 and 355")
         if not 5 <= angle_high <= 355:
             raise ValueError("angle_high must be between 5 and 355")
-        if angle_low != angle_high and angle_low + 30 > angle_high:
-            raise ValueError(
-                "angle_high must be either equal to angle_low or at least 30 larger than angle_low"
-            )
+        if angle_low >= angle_high:
+            raise ValueError("angle_low must be smaller than angle_high")
 
-        current_oscillation_raw = self._get_field_value(self._status, "oson")
-        if current_oscillation_raw in ["OION", "OIOF"]:
-            oson = "OION"
-        else:
-            oson = "ON"
         self._set_configuration(
-            oson=oson,
-            fpwr="ON",
-            ancp="CUST",
+            oson="ON",
             osal=f"{angle_low:04d}",
             osau=f"{angle_high:04d}",
+            ancp="CUST",
         )
 
     def disable_oscillation(self) -> None:
         """Turn off oscillation."""
-        current_oscillation_raw = self._get_field_value(self._status, "oson")
-        if current_oscillation_raw in ["OION", "OIOF"]:
-            oson = "OIOF"
-        else:
-            oson = "OFF"
-        self._set_configuration(oson=oson)
+        self._set_configuration(oson="OFF")

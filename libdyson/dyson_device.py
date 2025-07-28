@@ -3,7 +3,7 @@ from abc import abstractmethod
 import json
 import logging
 import threading
-from typing import Any, Optional, List, Dict, Union
+from typing import Any, Optional, Dict, Union
 
 import paho.mqtt.client as mqtt
 
@@ -17,7 +17,7 @@ from .exceptions import (
     DysonConnectionRefused,
     DysonConnectTimeout,
     DysonInvalidCredential,
-    DysonNotConnected, DysonNoEnvironmentalData,
+    DysonNotConnected,
 )
 from .utils import mqtt_time
 
@@ -288,11 +288,13 @@ class DysonFanDevice(DysonDevice):
     @staticmethod
     def _get_field_value(state: Dict[str, Any], field: str):
         try:
-            return  state[field][1] if isinstance(state[field], list) else state[field]
-        except:
+            return state[field][1] if isinstance(state[field], list) else state[field]
+        except (KeyError, TypeError, IndexError):
             return None
 
-    def _get_environmental_field_value(self, field, divisor=1) -> Optional[Union[int, float]]:
+    def _get_environmental_field_value(
+        self, field, divisor=1
+    ) -> Optional[Union[int, float]]:
         value = self._get_field_value(self._environmental_data, field)
         if value == "OFF" or value == "off":
             return ENVIRONMENTAL_OFF
